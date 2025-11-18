@@ -223,7 +223,7 @@
         // move forward
         distance = Math.max(0, distance - 0.1);
         distanceCount.textContent = Math.round(distance);
-        if (distance === 0) { state = 'finish'; }
+        if (distance <= 0) { state = 'finish'; }
       }
     }
     if (state === 'danger' && isHolding) {
@@ -276,9 +276,9 @@
 
     // ゴールライン
     const goalX = W - 80;
-    ctx.fillStyle = cssVar('--goal', '#f39c12');
+    ctx.fillStyle = cssVar('--goal', '#2563eb');
     ctx.fillRect(goalX, 0, 4, H);
-    ctx.fillStyle = cssVar('--goal', '#e67e22');
+    ctx.fillStyle = cssVar('--accent2', '#e6eefc');
     for (let y = 0; y < H; y += 20) {
       ctx.fillRect(goalX, y, 4, 10);
     }
@@ -300,7 +300,7 @@
 
     // ステータステキスト (8bit フォント風)
     ctx.font = '12px "Press Start 2P", monospace';
-    ctx.fillStyle = cssVar('--accent', '#d35b79');
+    ctx.fillStyle = cssVar('--accent', '#2563eb');
     ctx.fillText('State: ' + state.toUpperCase(), 20, 25);
 
     // ライフ (ハート型ピクセル)
@@ -309,11 +309,11 @@
     }
 
     // プログレスバー
-    ctx.fillStyle = cssVar('--border', '#16213e');
+    ctx.fillStyle = cssVar('--border', '#e6e9ef');
     ctx.fillRect(20, H - 30, W - 40, 12);
-    ctx.fillStyle = cssVar('--accent', '#2ed573');
+    ctx.fillStyle = cssVar('--accent', '#2563eb');
     ctx.fillRect(20, H - 30, (W - 40) * (progress / 100), 12);
-    ctx.strokeStyle = cssVar('--border', '#0f3460');
+    ctx.strokeStyle = cssVar('--border', '#e6e9ef');
     ctx.lineWidth = 2;
     ctx.strokeRect(20, H - 30, W - 40, 12);
   }
@@ -331,7 +331,7 @@
       [0,0,1,0,0,1,0,0]
     ];
     const size = 3;
-    ctx.fillStyle = cssVar('--player', '#7ED6FF');
+    ctx.fillStyle = cssVar('--player', '#2563eb');
     for (let row = 0; row < pixels.length; row++) {
       for (let col = 0; col < pixels[row].length; col++) {
         if (pixels[row][col]) {
@@ -357,7 +357,7 @@
       [0,1,0,0,0,0,1,0]
     ];
     const size = 4;
-    ctx.fillStyle = isFacingPlayer ? cssVar('--ghost-active', '#FF9EEB') : cssVar('--ghost', '#B18AFF');
+    ctx.fillStyle = isFacingPlayer ? cssVar('--ghost-active', '#1e40af') : cssVar('--ghost', '#94a3b8');
     for (let row = 0; row < pixels.length; row++) {
       for (let col = 0; col < pixels[row].length; col++) {
         if (pixels[row][col]) {
@@ -384,7 +384,7 @@
       [0,0,0,1,0,0,0]
     ];
     const size = 2;
-    ctx.fillStyle = cssVar('--heart', '#FF8DA2');
+    ctx.fillStyle = cssVar('--heart', '#ef4444');
     for (let row = 0; row < pixels.length; row++) {
       for (let col = 0; col < pixels[row].length; col++) {
         if (pixels[row][col]) {
