@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="jp.hama.daruma" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+  <name>DarumaKoro</name>
+  <description>だるまさんがころんだ - Tilt sensor balance challenge</description>
+  <author email="example@example.com" href="http://example.com">浜松未来</author>
+
+  <content src="index.html" />
+
+  <access origin="*" />
+
+  <!-- Cordova plugins for sensor fallback and shake detection (optional) -->
+  <plugin name="cordova-plugin-device-motion" source="npm" />
+  <plugin name="cordova-plugin-device-orientation" source="npm" />
+  <plugin name="cordova-plugin-shake" source="npm" />
+
+  <!-- iOS permissions -->
+  <platform name="ios">
+    <config-file platform="ios" target="*-Info.plist" parent="NSMotionUsageDescription">
+      <string>ゲームのバランスチャレンジにはデバイス傾きセンサーを使用します</string>
+    </config-file>
+  </platform>
+</widget>

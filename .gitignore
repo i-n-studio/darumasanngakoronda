@@ -1,0 +1,11 @@
+.DS_Store
+node_modules/
+/*.apk
+/*.ipa
+.DS_Store
+.env
+.vscode/
+.idea/
+*.log
+docs/screenshots/*
+
