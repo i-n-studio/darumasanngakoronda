@@ -68,6 +68,40 @@
     setInterval(()=>{ if (state === 'safe') { startPreTurn(); } }, 3000 + Math.random()*2800);
   }
 
+  // UI/UX helpers
+  const stateText = document.getElementById('stateText');
+  const stateBadge = document.getElementById('stateBadge');
+  const moveBtnProgress = document.getElementById('moveBtnProgress');
+  const helpModal = document.getElementById('helpModal');
+
+  function setStateBadge(s){
+    stateText.textContent = s;
+    if (s === '危険') { stateBadge.style.background = 'rgba(239,68,68,0.08)'; stateBadge.style.borderColor = 'rgba(239,68,68,0.25)'; }
+    else if (s === '予兆') { stateBadge.style.background = 'rgba(245,158,11,0.06)'; stateBadge.style.borderColor = 'rgba(245,158,11,0.15)'; }
+    else { stateBadge.style.background = 'transparent'; stateBadge.style.borderColor = 'var(--border)'; }
+  }
+
+  // help modal
+  const helpBtn = document.getElementById('helpBtn');
+  const closeHelp = document.getElementById('closeHelp');
+  if (helpBtn){
+    helpBtn.addEventListener('click', ()=>{ helpModal.setAttribute('aria-hidden','false'); helpModal.style.display='block'; closeHelp.focus(); });
+    closeHelp.addEventListener('click', ()=>{ helpModal.setAttribute('aria-hidden','true'); helpModal.style.display='none'; helpBtn.focus(); });
+    // close help modal on ESC
+    document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape' && helpModal.getAttribute('aria-hidden') === 'false'){ helpModal.setAttribute('aria-hidden','true'); helpModal.style.display='none'; helpBtn.focus(); } });
+  }
+
+  // move progress feedback
+  let holdStartTs = 0;
+  moveBtn.addEventListener('pointerdown', ()=>{ holdStartTs = performance.now(); moveBtnProgress.style.width = '0%'; moveBtnProgress.style.display = 'block'; });
+  moveBtn.addEventListener('pointerup', ()=>{ moveBtnProgress.style.width = '0%'; setTimeout(()=> moveBtnProgress.style.display='none', 120); });
+
+  moveBtn.addEventListener('pointerup', ()=>{ holdStartTs = 0; });
+
+  setInterval(()=>{
+    if (!holdStartTs) return; const elapsed = performance.now()-holdStartTs; const pct = Math.min(1, elapsed/3000); moveBtnProgress.style.width = (pct*100)+'%';
+  }, 120);
+
   // helper to read CSS variable values (returns fallback if missing)
   function cssVar(name, fallback) {
     try { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback; }
@@ -145,8 +179,10 @@
   function startPreTurn(){ state = 'preturn'; setTimeout(()=>{ state = 'danger'; setTimeout(()=>{ // move to safe after danger
       if (state === 'danger') {
         state = 'safe';
+        setStateBadge('安全');
       }
     }, 800); }, 700);
+    setStateBadge('予兆');
   }
 
   // prevent spammy multiple triggers of danger penalty
@@ -203,6 +239,10 @@
       playSfxSuccess();
       // slightly raise BGM pitch as buff
       if (audioCtx && window._bgOsc) { window._bgOsc.frequency.value += 30; setTimeout(()=>{ if(window._bgOsc) window._bgOsc.frequency.value -= 30; }, 1600); }
+      // haptic
+      if (navigator.vibrate) navigator.vibrate([20,40,20]);
+      // visual badge
+      setStateBadge('成功'); setTimeout(()=> setStateBadge('安全'), 1500);
     } else {
       // debuff
       console.log('balance failed');
@@ -211,6 +251,8 @@
       lifeCount.textContent = life;
       playSfxFail();
       if (audioCtx && window._bgOsc) { window._bgOsc.frequency.value -= 20; setTimeout(()=>{ if(window._bgOsc) window._bgOsc.frequency.value += 20; }, 2000); }
+      if (navigator.vibrate) navigator.vibrate([50,100,50]);
+      setStateBadge('失敗'); setTimeout(()=> setStateBadge('安全'), 1600);
     }
     distanceCount.textContent = Math.round(distance);
     if (life <= 0) { state = 'finish'; }
@@ -248,6 +290,10 @@
 
     // debug
     setDebugText();
+    // update status badge for safe/danger etc
+    if (state === 'safe') setStateBadge('安全');
+    else if (state === 'danger') setStateBadge('危険');
+    else if (state === 'preturn') setStateBadge('予兆');
 
     // draw
     draw();
