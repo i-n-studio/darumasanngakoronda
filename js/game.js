@@ -44,7 +44,7 @@
   // initialize
   function init() {
     lifeCount.textContent = life;
-    distanceCount.textContent = distance;
+    distanceCount.textContent = Math.round(distance);
     timerCount.textContent = timer;
     mode = modeSelect.value;
 
@@ -66,6 +66,12 @@
 
     // ghost rotate interval
     setInterval(()=>{ if (state === 'safe') { startPreTurn(); } }, 3000 + Math.random()*2800);
+  }
+
+  // helper to read CSS variable values (returns fallback if missing)
+  function cssVar(name, fallback) {
+    try { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback; }
+    catch (e) { return fallback || '' }
   }
 
   function showDebug(){
@@ -206,7 +212,7 @@
       playSfxFail();
       if (audioCtx && window._bgOsc) { window._bgOsc.frequency.value -= 20; setTimeout(()=>{ if(window._bgOsc) window._bgOsc.frequency.value += 20; }, 2000); }
     }
-    distanceCount.textContent = distance;
+    distanceCount.textContent = Math.round(distance);
     if (life <= 0) { state = 'finish'; }
   }
 
@@ -253,13 +259,13 @@
 
     // 背景グラデーション (8bit風)
     const grad = ctx.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, '#2c3e50');
-    grad.addColorStop(1, '#34495e');
+    grad.addColorStop(0, cssVar('--bg-1', '#2c3e50'));
+    grad.addColorStop(1, cssVar('--bg-2', '#34495e'));
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, H);
 
     // グリッド線（オプショナル・8bit風）
-    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.strokeStyle = cssVar('--grid', 'rgba(0,0,0,0.05)');
     ctx.lineWidth = 1;
     for (let i = 0; i < W; i += 40) {
       ctx.beginPath();
@@ -270,9 +276,9 @@
 
     // ゴールライン
     const goalX = W - 80;
-    ctx.fillStyle = '#f39c12';
+    ctx.fillStyle = cssVar('--goal', '#f39c12');
     ctx.fillRect(goalX, 0, 4, H);
-    ctx.fillStyle = '#e67e22';
+    ctx.fillStyle = cssVar('--goal', '#e67e22');
     for (let y = 0; y < H; y += 20) {
       ctx.fillRect(goalX, y, 4, 10);
     }
@@ -294,7 +300,7 @@
 
     // ステータステキスト (8bit フォント風)
     ctx.font = '12px "Press Start 2P", monospace';
-    ctx.fillStyle = '#00d9ff';
+    ctx.fillStyle = cssVar('--accent', '#d35b79');
     ctx.fillText('State: ' + state.toUpperCase(), 20, 25);
 
     // ライフ (ハート型ピクセル)
@@ -303,11 +309,11 @@
     }
 
     // プログレスバー
-    ctx.fillStyle = '#16213e';
+    ctx.fillStyle = cssVar('--border', '#16213e');
     ctx.fillRect(20, H - 30, W - 40, 12);
-    ctx.fillStyle = '#2ed573';
+    ctx.fillStyle = cssVar('--accent', '#2ed573');
     ctx.fillRect(20, H - 30, (W - 40) * (progress / 100), 12);
-    ctx.strokeStyle = '#0f3460';
+    ctx.strokeStyle = cssVar('--border', '#0f3460');
     ctx.lineWidth = 2;
     ctx.strokeRect(20, H - 30, W - 40, 12);
   }
@@ -325,7 +331,7 @@
       [0,0,1,0,0,1,0,0]
     ];
     const size = 3;
-    ctx.fillStyle = '#3498db'; // 青いキャラ
+    ctx.fillStyle = cssVar('--player', '#7ED6FF');
     for (let row = 0; row < pixels.length; row++) {
       for (let col = 0; col < pixels[row].length; col++) {
         if (pixels[row][col]) {
@@ -334,7 +340,7 @@
       }
     }
     // 影
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillStyle = 'rgba(0,0,0,0.12)';
     ctx.fillRect(x, y + pixels.length * size + 2, pixels[0].length * size, 3);
   }
 
@@ -351,7 +357,7 @@
       [0,1,0,0,0,0,1,0]
     ];
     const size = 4;
-    ctx.fillStyle = isFacingPlayer ? '#e74c3c' : '#95a5a6'; // 振り向き時は赤
+    ctx.fillStyle = isFacingPlayer ? cssVar('--ghost-active', '#FF9EEB') : cssVar('--ghost', '#B18AFF');
     for (let row = 0; row < pixels.length; row++) {
       for (let col = 0; col < pixels[row].length; col++) {
         if (pixels[row][col]) {
@@ -378,7 +384,7 @@
       [0,0,0,1,0,0,0]
     ];
     const size = 2;
-    ctx.fillStyle = '#e74c3c';
+    ctx.fillStyle = cssVar('--heart', '#FF8DA2');
     for (let row = 0; row < pixels.length; row++) {
       for (let col = 0; col < pixels[row].length; col++) {
         if (pixels[row][col]) {

@@ -1,5 +1,25 @@
-/* 8bit ピクセルアート風デザイン */
+/* 8bit ピクセルアート風デザイン — pastel 配色 */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root{
+  /* simple palette - limited, cute, pastel-ish */
+  --bg-1: #fbfbfc; /* top */
+  --bg-2: #ffffff; /* bottom */
+  --accent: #9ad1f9; /* soft sky blue */
+  --accent2: #ffd6a5; /* soft peach */
+  --mint: #dcfce7; /* safe area */
+  --mint-strong: #86efac; /* safe border */
+  --dot-color: #ffffff; /* sensor dot */
+  --player: #66c2ff; /* soft blue */
+  --ghost: #cbd5e1; /* soft gray-blue */
+  --ghost-active: #b18aff; /* subtle active color */
+  --heart: #ff7b82; /* soft red */
+  --panel: #ffffff;
+  --text: #222222;
+  --border: #e8e8f0;
+  --grid: rgba(0,0,0,0.06);
+  --goal: var(--accent2);
+}
 
 * {
   box-sizing: border-box;
@@ -10,25 +30,25 @@
 }
 
 body {
-  background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%);
-  color: #fff;
+  background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+  color: var(--text);
   margin: 0;
   padding: 0;
 }
 
 header {
-  background: #16213e;
+  background: var(--accent);
   padding: 12px 16px;
   text-align: center;
-  border-bottom: 4px solid #0f3460;
+  border-bottom: 4px solid var(--border);
   box-shadow: 0 4px 0 #000;
 }
 
 h1 {
   margin: 0;
   font-size: 14px;
-  color: #f39c12;
-  text-shadow: 2px 2px 0 #000, -1px -1px 0 #000;
+  color: var(--text);
+  text-shadow: 2px 2px 0 rgba(255,255,255,0.7), -1px -1px 0 rgba(0,0,0,0.05);
   letter-spacing: 2px;
 }
 
@@ -41,8 +61,8 @@ main {
 #gameCanvas {
   display: block;
   margin: 0 auto 16px;
-  background: #2c3e50;
-  border: 4px solid #0f3460;
+  background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.8));
+  border: 4px solid var(--border);
   box-shadow: 0 8px 0 #000, inset 0 4px 0 rgba(255,255,255,0.1);
   image-rendering: pixelated;
 }
@@ -51,8 +71,8 @@ main {
   display: flex;
   justify-content: space-around;
   padding: 12px;
-  background: #16213e;
-  border: 3px solid #0f3460;
+  background: var(--panel);
+  border: 3px dashed var(--border);
   border-radius: 0;
   margin-bottom: 12px;
   box-shadow: 0 4px 0 #000;
@@ -60,8 +80,8 @@ main {
 
 #status > div {
   font-size: 10px;
-  color: #f39c12;
-  text-shadow: 1px 1px 0 #000;
+  color: var(--text);
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.8);
 }
 
 #status span {
@@ -81,8 +101,8 @@ main {
   position: relative;
   width: 300px;
   height: 80px;
-  background: #1a1a2e;
-  border: 4px solid #0f3460;
+  background: var(--panel);
+  border: 4px solid var(--border);
   box-shadow: 0 4px 0 #000, inset 0 2px 0 rgba(0,217,255,0.2);
   margin-bottom: 12px;
 }
@@ -93,8 +113,8 @@ main {
   left: 60px;
   width: 80px;
   height: 48px;
-  background: rgba(46, 213, 115, 0.3);
-  border: 3px dashed #2ed573;
+  background: rgba(184, 242, 230, 0.3);
+  border: 3px dashed var(--mint-strong);
   box-shadow: 0 0 8px rgba(46, 213, 115, 0.5);
 }
 
@@ -104,7 +124,7 @@ main {
   left: 130px;
   width: 32px;
   height: 32px;
-  background: #fff;
+  background: var(--dot-color);
   border: 3px solid #000;
   box-shadow: 0 0 12px rgba(255,255,255,0.8), inset 0 2px 0 rgba(0,0,0,0.2);
 }
@@ -113,11 +133,11 @@ main {
   width: 240px;
   height: 56px;
   font-size: 12px;
-  background: linear-gradient(180deg, #ff6348 0%, #e84118 100%);
-  border: 4px solid #c23616;
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent2) 100%);
+  border: 4px solid var(--accent2);
   color: #fff;
   text-shadow: 2px 2px 0 #000;
-  box-shadow: 0 6px 0 #8b2e0f, 0 8px 8px rgba(0,0,0,0.4);
+  box-shadow: 0 6px 0 rgba(0,0,0,0.32), 0 8px 8px rgba(0,0,0,0.4);
   cursor: pointer;
   transition: all 0.1s;
   position: relative;
@@ -126,11 +146,11 @@ main {
 
 #moveBtn:active {
   transform: translateY(4px);
-  box-shadow: 0 2px 0 #8b2e0f, 0 4px 4px rgba(0,0,0,0.4);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.32), 0 4px 4px rgba(0,0,0,0.4);
 }
 
 #moveBtn:hover {
-  background: linear-gradient(180deg, #ff7f66 0%, #ff6348 100%);
+  background: linear-gradient(180deg, var(--accent2) 0%, var(--accent) 100%);
 }
 
 #debugControls {
@@ -145,9 +165,9 @@ main {
 #debugControls select {
   font-size: 8px;
   padding: 8px 12px;
-  background: #16213e;
-  border: 3px solid #0f3460;
-  color: #00d9ff;
+  background: var(--panel);
+  border: 3px solid var(--border);
+  color: var(--text);
   cursor: pointer;
   box-shadow: 0 3px 0 #000;
   font-family: 'Press Start 2P', monospace;
@@ -162,21 +182,21 @@ main {
   position: fixed;
   right: 8px;
   top: 80px;
-  background: rgba(22, 33, 62, 0.95);
+  background: rgba(255, 240, 247, 0.95);
   padding: 12px;
-  border: 3px solid #0f3460;
+  border: 3px solid var(--border);
   box-shadow: 0 4px 0 #000;
   max-width: 32ch;
   font-size: 8px;
-  color: #00d9ff;
+  color: var(--text);
 }
 
 #debugPanel input {
   width: 80px;
   font-size: 8px;
-  background: #1a1a2e;
-  border: 2px solid #0f3460;
-  color: #fff;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  color: var(--text);
   padding: 4px;
   font-family: 'Press Start 2P', monospace;
 }
@@ -192,7 +212,7 @@ footer {
   padding: 16px;
   font-size: 8px;
   color: #7f8c8d;
-  border-top: 3px solid #0f3460;
+  border-top: 3px dashed var(--border);
   margin-top: 24px;
 }
 
