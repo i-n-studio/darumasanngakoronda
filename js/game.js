@@ -44,7 +44,7 @@
   // initialize
   function init() {
     lifeCount.textContent = life;
-    distanceCount.textContent = distance;
+    distanceCount.textContent = Math.round(distance);
     timerCount.textContent = timer;
     mode = modeSelect.value;
 
@@ -66,6 +66,46 @@
 
     // ghost rotate interval
     setInterval(()=>{ if (state === 'safe') { startPreTurn(); } }, 3000 + Math.random()*2800);
+  }
+
+  // UI/UX helpers
+  const stateText = document.getElementById('stateText');
+  const stateBadge = document.getElementById('stateBadge');
+  const moveBtnProgress = document.getElementById('moveBtnProgress');
+  const helpModal = document.getElementById('helpModal');
+
+  function setStateBadge(s){
+    stateText.textContent = s;
+    if (s === '危険') { stateBadge.style.background = 'rgba(239,68,68,0.08)'; stateBadge.style.borderColor = 'rgba(239,68,68,0.25)'; }
+    else if (s === '予兆') { stateBadge.style.background = 'rgba(245,158,11,0.06)'; stateBadge.style.borderColor = 'rgba(245,158,11,0.15)'; }
+    else { stateBadge.style.background = 'transparent'; stateBadge.style.borderColor = 'var(--border)'; }
+  }
+
+  // help modal
+  const helpBtn = document.getElementById('helpBtn');
+  const closeHelp = document.getElementById('closeHelp');
+  if (helpBtn){
+    helpBtn.addEventListener('click', ()=>{ helpModal.setAttribute('aria-hidden','false'); helpModal.style.display='block'; closeHelp.focus(); });
+    closeHelp.addEventListener('click', ()=>{ helpModal.setAttribute('aria-hidden','true'); helpModal.style.display='none'; helpBtn.focus(); });
+    // close help modal on ESC
+    document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape' && helpModal.getAttribute('aria-hidden') === 'false'){ helpModal.setAttribute('aria-hidden','true'); helpModal.style.display='none'; helpBtn.focus(); } });
+  }
+
+  // move progress feedback
+  let holdStartTs = 0;
+  moveBtn.addEventListener('pointerdown', ()=>{ holdStartTs = performance.now(); moveBtnProgress.style.width = '0%'; moveBtnProgress.style.display = 'block'; });
+  moveBtn.addEventListener('pointerup', ()=>{ moveBtnProgress.style.width = '0%'; setTimeout(()=> moveBtnProgress.style.display='none', 120); });
+
+  moveBtn.addEventListener('pointerup', ()=>{ holdStartTs = 0; });
+
+  setInterval(()=>{
+    if (!holdStartTs) return; const elapsed = performance.now()-holdStartTs; const pct = Math.min(1, elapsed/3000); moveBtnProgress.style.width = (pct*100)+'%';
+  }, 120);
+
+  // helper to read CSS variable values (returns fallback if missing)
+  function cssVar(name, fallback) {
+    try { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback; }
+    catch (e) { return fallback || '' }
   }
 
   function showDebug(){
@@ -139,8 +179,10 @@
   function startPreTurn(){ state = 'preturn'; setTimeout(()=>{ state = 'danger'; setTimeout(()=>{ // move to safe after danger
       if (state === 'danger') {
         state = 'safe';
+        setStateBadge('安全');
       }
     }, 800); }, 700);
+    setStateBadge('予兆');
   }
 
   // prevent spammy multiple triggers of danger penalty
@@ -197,6 +239,10 @@
       playSfxSuccess();
       // slightly raise BGM pitch as buff
       if (audioCtx && window._bgOsc) { window._bgOsc.frequency.value += 30; setTimeout(()=>{ if(window._bgOsc) window._bgOsc.frequency.value -= 30; }, 1600); }
+      // haptic
+      if (navigator.vibrate) navigator.vibrate([20,40,20]);
+      // visual badge
+      setStateBadge('成功'); setTimeout(()=> setStateBadge('安全'), 1500);
     } else {
       // debuff
       console.log('balance failed');
@@ -205,8 +251,10 @@
       lifeCount.textContent = life;
       playSfxFail();
       if (audioCtx && window._bgOsc) { window._bgOsc.frequency.value -= 20; setTimeout(()=>{ if(window._bgOsc) window._bgOsc.frequency.value += 20; }, 2000); }
+      if (navigator.vibrate) navigator.vibrate([50,100,50]);
+      setStateBadge('失敗'); setTimeout(()=> setStateBadge('安全'), 1600);
     }
-    distanceCount.textContent = distance;
+    distanceCount.textContent = Math.round(distance);
     if (life <= 0) { state = 'finish'; }
   }
 
@@ -217,7 +265,7 @@
         // move forward
         distance = Math.max(0, distance - 0.1);
         distanceCount.textContent = Math.round(distance);
-        if (distance === 0) { state = 'finish'; }
+        if (distance <= 0) { state = 'finish'; }
       }
     }
     if (state === 'danger' && isHolding) {
@@ -242,6 +290,10 @@
 
     // debug
     setDebugText();
+    // update status badge for safe/danger etc
+    if (state === 'safe') setStateBadge('安全');
+    else if (state === 'danger') setStateBadge('危険');
+    else if (state === 'preturn') setStateBadge('予兆');
 
     // draw
     draw();
@@ -253,13 +305,13 @@
 
     // 背景グラデーション (8bit風)
     const grad = ctx.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, '#2c3e50');
-    grad.addColorStop(1, '#34495e');
+    grad.addColorStop(0, cssVar('--bg-1', '#2c3e50'));
+    grad.addColorStop(1, cssVar('--bg-2', '#34495e'));
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, H);
 
     // グリッド線（オプショナル・8bit風）
-    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.strokeStyle = cssVar('--grid', 'rgba(0,0,0,0.05)');
     ctx.lineWidth = 1;
     for (let i = 0; i < W; i += 40) {
       ctx.beginPath();
@@ -270,9 +322,9 @@
 
     // ゴールライン
     const goalX = W - 80;
-    ctx.fillStyle = '#f39c12';
+    ctx.fillStyle = cssVar('--goal', '#2563eb');
     ctx.fillRect(goalX, 0, 4, H);
-    ctx.fillStyle = '#e67e22';
+    ctx.fillStyle = cssVar('--accent2', '#e6eefc');
     for (let y = 0; y < H; y += 20) {
       ctx.fillRect(goalX, y, 4, 10);
     }
@@ -294,7 +346,7 @@
 
     // ステータステキスト (8bit フォント風)
     ctx.font = '12px "Press Start 2P", monospace';
-    ctx.fillStyle = '#00d9ff';
+    ctx.fillStyle = cssVar('--accent', '#2563eb');
     ctx.fillText('State: ' + state.toUpperCase(), 20, 25);
 
     // ライフ (ハート型ピクセル)
@@ -303,11 +355,11 @@
     }
 
     // プログレスバー
-    ctx.fillStyle = '#16213e';
+    ctx.fillStyle = cssVar('--border', '#e6e9ef');
     ctx.fillRect(20, H - 30, W - 40, 12);
-    ctx.fillStyle = '#2ed573';
+    ctx.fillStyle = cssVar('--accent', '#2563eb');
     ctx.fillRect(20, H - 30, (W - 40) * (progress / 100), 12);
-    ctx.strokeStyle = '#0f3460';
+    ctx.strokeStyle = cssVar('--border', '#e6e9ef');
     ctx.lineWidth = 2;
     ctx.strokeRect(20, H - 30, W - 40, 12);
   }
@@ -325,7 +377,7 @@
       [0,0,1,0,0,1,0,0]
     ];
     const size = 3;
-    ctx.fillStyle = '#3498db'; // 青いキャラ
+    ctx.fillStyle = cssVar('--player', '#2563eb');
     for (let row = 0; row < pixels.length; row++) {
       for (let col = 0; col < pixels[row].length; col++) {
         if (pixels[row][col]) {
@@ -334,7 +386,7 @@
       }
     }
     // 影
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillStyle = 'rgba(0,0,0,0.12)';
     ctx.fillRect(x, y + pixels.length * size + 2, pixels[0].length * size, 3);
   }
 
@@ -351,7 +403,7 @@
       [0,1,0,0,0,0,1,0]
     ];
     const size = 4;
-    ctx.fillStyle = isFacingPlayer ? '#e74c3c' : '#95a5a6'; // 振り向き時は赤
+    ctx.fillStyle = isFacingPlayer ? cssVar('--ghost-active', '#1e40af') : cssVar('--ghost', '#94a3b8');
     for (let row = 0; row < pixels.length; row++) {
       for (let col = 0; col < pixels[row].length; col++) {
         if (pixels[row][col]) {
@@ -378,7 +430,7 @@
       [0,0,0,1,0,0,0]
     ];
     const size = 2;
-    ctx.fillStyle = '#e74c3c';
+    ctx.fillStyle = cssVar('--heart', '#ef4444');
     for (let row = 0; row < pixels.length; row++) {
       for (let col = 0; col < pixels[row].length; col++) {
         if (pixels[row][col]) {

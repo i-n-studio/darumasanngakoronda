@@ -16,6 +16,7 @@
       <section id="status">
         <div id="life">❤️ x <span id="lifeCount">3</span></div>
         <div id="distance">ゴールまで: <span id="distanceCount">100</span> m</div>
+        <div id="stateBadge" role="status" aria-live="polite" class="state-badge">状態: <span id="stateText">準備中</span></div>
         <div id="timer">制限時間: <span id="timerCount">60</span>s</div>
       </section>
       <section id="controls">
@@ -23,11 +24,14 @@
           <div id="safeArea"></div>
           <div id="sensorDot"></div>
         </div>
-        <button id="moveBtn">進む (長押し)</button>
+          <button id="moveBtn" aria-label="進む。長押しで前進">進む (長押し)
+            <span id="moveBtnProgress" class="move-progress" aria-hidden="true"></span>
+          </button>
       </section>
       <section id="debugControls">
         <button id="toggleDebug">デバッグ表示</button>
         <button id="togglePlayAudio">BGM再生</button>
+          <button id="helpBtn" aria-controls="helpModal" aria-haspopup="dialog">ヘルプ</button>
         <label for="modeSelect" class="small">難易度</label>
         <select id="modeSelect" aria-label="難易度を選択してください">
           <option value="easy">Easy</option>
@@ -41,5 +45,16 @@
     </footer>
   </div>
   <script src="js/game.js"></script>
+    <div id="helpModal" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="help-body">
+        <h2>遊び方</h2>
+        <ol>
+          <li>進むボタンを長押ししてゴールを目指してください。</li>
+          <li>鬼が振り向いたらボタンを離して止まるとバランスチャレンジが始まります。</li>
+          <li>センサーUIの白いドットを緑の箱に収めると成功です。</li>
+        </ol>
+        <button id="closeHelp">閉じる</button>
+      </div>
+    </div>
 </body>
 </html>
